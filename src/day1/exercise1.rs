@@ -4,10 +4,11 @@ use crate::common::io;
 pub fn run() {
     let input = io::read_file(&Path::new("src/day1/input"));
 
+    println!("Calculating calibration values...");
     let mut calibration_values = Vec::<u32>::new();
 
     for line in input.lines() {
-        let mut first_digit: char = 'a';
+        let mut first_digit: char = 'a'; // TODO: Find better way of managing no-digit-found
         let mut last_digit: char = 'a';
         for char in line.chars() {
             if char.is_digit(10) {
@@ -24,5 +25,5 @@ pub fn run() {
         calibration_values.push(format!("{first_digit}{last_digit}").parse::<u32>().unwrap());
     }
 
-    println!("{}", calibration_values.iter().sum::<u32>());
+    println!("Done. The sum of all calibration values is {}", calibration_values.iter().sum::<u32>());
 }
