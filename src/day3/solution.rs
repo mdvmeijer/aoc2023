@@ -58,32 +58,30 @@ pub fn part2() {
 }
 
 pub fn part1() {
-    let input = io::read_file(&Path::new("src/day3/input"));
+    let binding = io::read_file(&Path::new("src/day3/input"));
+    let mut input_lines: Vec<String> = binding
+        .lines()
+        .map(|str| String::from(str))
+        .collect();
 
     println!("Identifying part numbers and summing them...");
-    let mut lines = Vec::<String>::new();
-
-    for line in input.lines() {
-        lines.push(line.to_string());
-    }
-
-    let mut numbers = Vec::<Number>::new();
     let number_regex = Regex::new(r"\d+").unwrap();
 
-    for (line_index, line) in input.lines().enumerate() {
-        let matches = number_regex.find_iter(line);
-        for number_match in matches {
-            let number = Number {
-                value: number_match.as_str().parse().unwrap(),
-                x: number_match.start(),
-                y: line_index,
-            };
+    let numbers: Vec<Number> = input_lines
+        .iter()
+        .enumerate()
+        .flat_map(|(line_index, line)| { // Create a Number for each match over all lines
+            number_regex.find_iter(line).map(move |number_match| {
+                Number {
+                    value: number_match.as_str().parse().unwrap(),
+                    x: number_match.start(),
+                    y: line_index,
+                }
+            })
+        })
+        .filter(|number| number.has_adjacent_symbol(&input_lines))
+        .collect();
 
-            if number.has_adjacent_symbol(&lines) {
-                numbers.push(number);
-            }
-        }
-    }
 
     println!("The sum of all part numbers is {}", numbers.iter().map(|number| number.value).sum::<usize>());
 }
