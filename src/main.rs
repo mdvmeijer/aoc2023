@@ -1,3 +1,3 @@
 fn main() {
-    aoc2023::day3::solution::part1();
+    aoc2023::day3::solution::part2();
 }
