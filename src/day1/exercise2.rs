@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::common::io;
 
 pub fn run() {
-    let input = io::read_file(&Path::new("src/day1/input"));
+    let input = io::read_file(Path::new("src/day1/input"));
 
     println!("Calculating calibration values...");
     let mut calibration_values = Vec::<u32>::new();
@@ -36,7 +36,7 @@ pub fn run() {
 
 fn get_first_digit(line: &str) -> (usize, char) {
     for (index, char) in line.chars().enumerate() {
-        if char.is_digit(10) {
+        if char.is_ascii_digit() {
             return (index, char);
         }
     }
@@ -64,7 +64,7 @@ fn get_first_text_number(line: &str) -> (usize, char) {
 
 fn get_last_digit(line: &str) -> (usize, char) {
     for (index, char) in line.chars().rev().enumerate() {
-        if char.is_digit(10) {
+        if char.is_ascii_digit() {
             return (line.len() - index - 1, char);
         }
     }

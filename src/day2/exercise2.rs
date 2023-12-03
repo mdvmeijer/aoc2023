@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::common::io;
 
 pub fn run() {
-    let input = io::read_file(&Path::new("src/day2/input"));
+    let input = io::read_file(Path::new("src/day2/input"));
 
     println!("Identifying the minimum sets of cubes...");
     let games = parse(input);
@@ -61,15 +61,15 @@ impl Game {
         Game { id: game_id, sets }
     }
 
-    fn least_red_possible(self: &Self) -> usize {
+    fn least_red_possible(&self) -> usize {
         self.sets.iter().map(|set| set.red).max().unwrap()
     }
 
-    fn least_green_possible(self: &Self) -> usize {
+    fn least_green_possible(&self) -> usize {
         self.sets.iter().map(|set| set.green).max().unwrap()
     }
 
-    fn least_blue_possible(self: &Self) -> usize {
+    fn least_blue_possible(&self) -> usize {
         self.sets.iter().map(|set| set.blue).max().unwrap()
     }
 }

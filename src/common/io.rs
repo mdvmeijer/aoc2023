@@ -5,7 +5,7 @@ use std::io::prelude::*;
 pub fn read_file(path: &Path) -> String {
     let display = path.display();
 
-    let mut file = match File::open(&path) {
+    let mut file = match File::open(path) {
         Err(why) => panic!("Couldn't open {display}: {why}"), // TODO: return Result instead
         Ok(file) => file,
     };

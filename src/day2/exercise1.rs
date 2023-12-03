@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::common::io;
 
 pub fn run() {
-    let input = io::read_file(&Path::new("src/day2/input"));
+    let input = io::read_file(Path::new("src/day2/input"));
 
     println!("Identifying all possible games...");
     let games = parse(input);
@@ -60,7 +60,7 @@ impl Game {
     }
 
     fn is_possible(
-        self: &Self,
+        &self,
         red_max: usize,
         green_max: usize,
         blue_max: usize,

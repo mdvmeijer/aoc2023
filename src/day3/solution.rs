@@ -18,10 +18,10 @@ struct MatrixElement {
 }
 
 pub fn part2() {
-    let binding = io::read_file(&Path::new("src/day3/input"));
-    let mut input_lines: Vec<String> = binding
+    let binding = io::read_file(Path::new("src/day3/input"));
+    let input_lines: Vec<String> = binding
         .lines()
-        .map(|str| String::from(str))
+        .map(String::from)
         .collect();
 
     println!("Identifying gears and calculating gear ratios...");
@@ -39,12 +39,13 @@ pub fn part2() {
 
             let gear_candidates = number.get_gear_candidates(&input_lines);
             for candidate in gear_candidates {
-                let numbers = gear_candidate_to_numbers_map.entry(candidate).or_insert(Vec::new());
+                let numbers = gear_candidate_to_numbers_map.entry(candidate).or_default();
                 numbers.push(number.value);
             }
         }
     }
 
+    #[allow(clippy::get_first)]
     let result = gear_candidate_to_numbers_map.into_iter()
         .filter(|(_, numbers)| {
             numbers.len() == 2 // Two adjacent numbers, hence is a gear
@@ -58,10 +59,10 @@ pub fn part2() {
 }
 
 pub fn part1() {
-    let binding = io::read_file(&Path::new("src/day3/input"));
-    let mut input_lines: Vec<String> = binding
+    let binding = io::read_file(Path::new("src/day3/input"));
+    let input_lines: Vec<String> = binding
         .lines()
-        .map(|str| String::from(str))
+        .map(String::from)
         .collect();
 
     println!("Identifying part numbers and summing them...");
@@ -87,7 +88,7 @@ pub fn part1() {
 }
 
 impl MatrixElement {
-    fn new(line: &String, x: usize, y: usize) -> MatrixElement {
+    fn new(line: &str, x: usize, y: usize) -> MatrixElement {
         MatrixElement {
             value: line.chars().nth(x).unwrap(),
             x,
@@ -97,11 +98,11 @@ impl MatrixElement {
 }
 
 impl Number {
-    fn len(self: &Self) -> usize {
+    fn len(&self) -> usize {
         self.value.to_string().len()
     }
 
-    fn get_gear_candidates(self: &Self, lines: &Vec<String>) -> Vec<MatrixElement> {
+    fn get_gear_candidates(&self, lines: &Vec<String>) -> Vec<MatrixElement> {
         let surrounding_matrix_elements = self.get_surrounding_matrix_elements(lines);
 
         surrounding_matrix_elements.into_iter()
@@ -109,7 +110,7 @@ impl Number {
             .collect()
     }
 
-    fn get_surrounding_matrix_elements(self: &Self, lines: &Vec<String>) -> Vec<MatrixElement> {
+    fn get_surrounding_matrix_elements(&self, lines: &Vec<String>) -> Vec<MatrixElement> {
         let mut surrounding_matrix_elements = Vec::<MatrixElement>::new();
 
         let at_top_edge = self.y == 0;
@@ -122,17 +123,17 @@ impl Number {
             let line_above = lines.get(self.y - 1).unwrap();
             // diagonally left
             if !at_left_edge {
-                let matrix_element = MatrixElement::new(&line_above, self.x-1, self.y-1);
+                let matrix_element = MatrixElement::new(line_above, self.x-1, self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // directly above
             for i in self.x..self.x + self.len() {
-                let matrix_element = MatrixElement::new(&line_above, i, self.y-1);
+                let matrix_element = MatrixElement::new(line_above, i, self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // diagonally right
             if !at_right_edge {
-                let matrix_element = MatrixElement::new(&line_above, self.x+self.len(), self.y-1);
+                let matrix_element = MatrixElement::new(line_above, self.x+self.len(), self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
         }
@@ -140,11 +141,11 @@ impl Number {
         // Check same line
         let same_line = lines.get(self.y).unwrap();
         if !at_left_edge {
-            let matrix_element = MatrixElement::new(&same_line, self.x-1, self.y);
+            let matrix_element = MatrixElement::new(same_line, self.x-1, self.y);
             surrounding_matrix_elements.push(matrix_element);
         }
         if !at_right_edge {
-            let matrix_element = MatrixElement::new(&same_line, self.x+self.len(), self.y);
+            let matrix_element = MatrixElement::new(same_line, self.x+self.len(), self.y);
             surrounding_matrix_elements.push(matrix_element);
         }
 
@@ -152,17 +153,17 @@ impl Number {
         if !at_bottom_edge {
             let line_below = lines.get(self.y + 1).unwrap();
             if !at_left_edge {
-                let matrix_element = MatrixElement::new(&line_below, self.x-1, self.y+1);
+                let matrix_element = MatrixElement::new(line_below, self.x-1, self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // directly below
             for i in self.x..self.x + self.len() {
-                let matrix_element = MatrixElement::new(&line_below, i, self.y+1);
+                let matrix_element = MatrixElement::new(line_below, i, self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // diagonally right
             if !at_right_edge {
-                let matrix_element = MatrixElement::new(&line_below, self.x+self.len(), self.y+1);
+                let matrix_element = MatrixElement::new(line_below, self.x+self.len(), self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
         }
@@ -170,7 +171,7 @@ impl Number {
         surrounding_matrix_elements
     }
 
-    fn has_adjacent_symbol(self: &Self, lines: &Vec<String>) -> bool {
+    fn has_adjacent_symbol(&self, lines: &Vec<String>) -> bool {
         let symbol_regex = Regex::new(r"[^a-zA-Z0-9.]").unwrap();
 
         let surrounding_matrix_elements = self.get_surrounding_matrix_elements(lines);
@@ -180,10 +181,6 @@ impl Number {
             })
             .collect::<String>(); // Can collect Vec<char> as String
 
-        if symbol_regex.is_match(surrounding_chars_string.as_str()) {
-            true
-        } else {
-            false
-        }
+        symbol_regex.is_match(surrounding_chars_string.as_str())
     }
 }
