@@ -14,48 +14,53 @@ struct Number {
 struct MatrixElement {
     value: char,
     x: usize,
-    y: usize
+    y: usize,
 }
 
 pub fn part2() {
     let input = io::read_file(&Path::new("src/day3/input"));
-    let mut lines = Vec::<String>::new();
-
+    let mut input_lines = Vec::<String>::new();
     for line in input.lines() {
-        lines.push(line.to_string());
+        input_lines.push(line.to_string());
     }
 
+    println!("Identifying gears and calculating gear ratios...");
     let mut gear_candidate_to_number_map = HashMap::<MatrixElement, Vec<usize>>::new();
     let number_regex = Regex::new(r"\d+").unwrap();
 
-    for (line_index, line) in input.lines().enumerate() {
+    for (line_index, line) in input_lines.iter().enumerate() {
         let matches = number_regex.find_iter(line);
         for number_match in matches {
-            let number = dbg!(Number {
+            let number = Number {
                 value: number_match.as_str().parse().unwrap(),
                 x: number_match.start(),
                 y: line_index,
-            });
+            };
 
-            let gear_candidates = dbg!(number.get_gear_candidates(&lines));
+            let gear_candidates = number.get_gear_candidates(&input_lines);
             for candidate in gear_candidates {
-                let entry = gear_candidate_to_number_map.entry(candidate).or_insert(Vec::new());
-                entry.push(number.value);
+                let numbers = gear_candidate_to_number_map.entry(candidate).or_insert(Vec::new());
+                numbers.push(number.value);
             }
         }
     }
 
-    let gear_to_number_map: HashMap<MatrixElement, Vec<usize>> = gear_candidate_to_number_map.into_iter().filter(|(_, numbers)| numbers.len() == 2 ).collect();
-
-    let result = gear_to_number_map.iter().map(|(gear, numbers)| {
-        numbers.get(0).unwrap() * numbers.get(1).unwrap()
-    }).sum::<usize>();
+    let result = gear_candidate_to_number_map.into_iter()
+        .filter(|(_, numbers)| {
+            numbers.len() == 2 // Two adjacent numbers, hence is a gear
+        })
+        .map(|(_, numbers)| {
+            numbers.get(0).unwrap() * numbers.get(1).unwrap() // Calculate gear ratio
+        })
+        .sum::<usize>();
 
     println!("The sum of all gear ratios is {}", result);
 }
 
 pub fn part1() {
     let input = io::read_file(&Path::new("src/day3/input"));
+
+    println!("Identifying part numbers and summing them...");
     let mut lines = Vec::<String>::new();
 
     for line in input.lines() {
@@ -68,14 +73,13 @@ pub fn part1() {
     for (line_index, line) in input.lines().enumerate() {
         let matches = number_regex.find_iter(line);
         for number_match in matches {
-            println!("Match was found: {:?}", number_match);
-            let number = dbg!(Number {
+            let number = Number {
                 value: number_match.as_str().parse().unwrap(),
                 x: number_match.start(),
                 y: line_index,
-            });
+            };
 
-            if dbg!(number.has_adjacent_symbol(&lines)) {
+            if number.has_adjacent_symbol(&lines) {
                 numbers.push(number);
             }
         }
@@ -90,10 +94,11 @@ impl Number {
     }
 
     fn get_gear_candidates(self: &Self, lines: &Vec<String>) -> Vec<MatrixElement> {
-        let matrix_elements = self.get_surrounding_matrix_elements(lines);
+        let surrounding_matrix_elements = self.get_surrounding_matrix_elements(lines);
 
-        let gear_candidates = matrix_elements.into_iter().filter(|element| element.value == '*').collect();
-        gear_candidates
+        surrounding_matrix_elements.into_iter()
+            .filter(|element| element.value == '*')
+            .collect()
     }
 
     fn get_surrounding_matrix_elements(self: &Self, lines: &Vec<String>) -> Vec<MatrixElement> {
@@ -110,9 +115,9 @@ impl Number {
             // diagonally left
             if !at_left_edge {
                 let matrix_element = MatrixElement {
-                    value: line_above.chars().nth(self.x-1).unwrap(),
-                    x: self.x-1,
-                    y: self.y-1
+                    value: line_above.chars().nth(self.x - 1).unwrap(),
+                    x: self.x - 1,
+                    y: self.y - 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -121,7 +126,7 @@ impl Number {
                 let matrix_element = MatrixElement {
                     value: line_above.chars().nth(i).unwrap(),
                     x: i,
-                    y: self.y-1
+                    y: self.y - 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -130,7 +135,7 @@ impl Number {
                 let matrix_element = MatrixElement {
                     value: line_above.chars().nth(self.x + self.len()).unwrap(),
                     x: self.x + self.len(),
-                    y: self.y-1
+                    y: self.y - 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -140,9 +145,9 @@ impl Number {
         let same_line = lines.get(self.y).unwrap();
         if !at_left_edge {
             let matrix_element = MatrixElement {
-                value: same_line.chars().nth(self.x-1).unwrap(),
-                x: self.x-1,
-                y: self.y
+                value: same_line.chars().nth(self.x - 1).unwrap(),
+                x: self.x - 1,
+                y: self.y,
             };
             surrounding_matrix_elements.push(matrix_element);
         }
@@ -150,7 +155,7 @@ impl Number {
             let matrix_element = MatrixElement {
                 value: same_line.chars().nth(self.x + self.len()).unwrap(),
                 x: self.x + self.len(),
-                y: self.y
+                y: self.y,
             };
             surrounding_matrix_elements.push(matrix_element);
         }
@@ -160,9 +165,9 @@ impl Number {
             let line_below = lines.get(self.y + 1).unwrap();
             if !at_left_edge {
                 let matrix_element = MatrixElement {
-                    value: line_below.chars().nth(self.x-1).unwrap(),
-                    x: self.x-1,
-                    y: self.y+1
+                    value: line_below.chars().nth(self.x - 1).unwrap(),
+                    x: self.x - 1,
+                    y: self.y + 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -171,7 +176,7 @@ impl Number {
                 let matrix_element = MatrixElement {
                     value: line_below.chars().nth(i).unwrap(),
                     x: i,
-                    y: self.y+1
+                    y: self.y + 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -180,7 +185,7 @@ impl Number {
                 let matrix_element = MatrixElement {
                     value: line_below.chars().nth(self.x + self.len()).unwrap(),
                     x: self.x + self.len(),
-                    y: self.y+1
+                    y: self.y + 1,
                 };
                 surrounding_matrix_elements.push(matrix_element);
             }
@@ -193,9 +198,11 @@ impl Number {
         let symbol_regex = Regex::new(r"[^a-zA-Z0-9.]").unwrap();
 
         let surrounding_matrix_elements = self.get_surrounding_matrix_elements(lines);
-        let surrounding_chars_string = surrounding_matrix_elements.iter().map(|matrix_element| {
-            matrix_element.value
-        }).collect::<String>(); // Can collect Vec<char> as String
+        let surrounding_chars_string = surrounding_matrix_elements.iter()
+            .map(|matrix_element| {
+                matrix_element.value
+            })
+            .collect::<String>(); // Can collect Vec<char> as String
 
         if symbol_regex.is_match(surrounding_chars_string.as_str()) {
             true
