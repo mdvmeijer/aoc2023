@@ -25,7 +25,7 @@ pub fn part2() {
     }
 
     println!("Identifying gears and calculating gear ratios...");
-    let mut gear_candidate_to_number_map = HashMap::<MatrixElement, Vec<usize>>::new();
+    let mut gear_candidate_to_numbers_map = HashMap::<MatrixElement, Vec<usize>>::new();
     let number_regex = Regex::new(r"\d+").unwrap();
 
     for (line_index, line) in input_lines.iter().enumerate() {
@@ -39,13 +39,13 @@ pub fn part2() {
 
             let gear_candidates = number.get_gear_candidates(&input_lines);
             for candidate in gear_candidates {
-                let numbers = gear_candidate_to_number_map.entry(candidate).or_insert(Vec::new());
+                let numbers = gear_candidate_to_numbers_map.entry(candidate).or_insert(Vec::new());
                 numbers.push(number.value);
             }
         }
     }
 
-    let result = gear_candidate_to_number_map.into_iter()
+    let result = gear_candidate_to_numbers_map.into_iter()
         .filter(|(_, numbers)| {
             numbers.len() == 2 // Two adjacent numbers, hence is a gear
         })
@@ -88,6 +88,16 @@ pub fn part1() {
     println!("The sum of all part numbers is {}", numbers.iter().map(|number| number.value).sum::<usize>());
 }
 
+impl MatrixElement {
+    fn new(line: &String, x: usize, y: usize) -> MatrixElement {
+        MatrixElement {
+            value: line.chars().nth(x).unwrap(),
+            x,
+            y,
+        }
+    }
+}
+
 impl Number {
     fn len(self: &Self) -> usize {
         self.value.to_string().len()
@@ -114,29 +124,17 @@ impl Number {
             let line_above = lines.get(self.y - 1).unwrap();
             // diagonally left
             if !at_left_edge {
-                let matrix_element = MatrixElement {
-                    value: line_above.chars().nth(self.x - 1).unwrap(),
-                    x: self.x - 1,
-                    y: self.y - 1,
-                };
+                let matrix_element = MatrixElement::new(&line_above, self.x-1, self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // directly above
             for i in self.x..self.x + self.len() {
-                let matrix_element = MatrixElement {
-                    value: line_above.chars().nth(i).unwrap(),
-                    x: i,
-                    y: self.y - 1,
-                };
+                let matrix_element = MatrixElement::new(&line_above, i, self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // diagonally right
             if !at_right_edge {
-                let matrix_element = MatrixElement {
-                    value: line_above.chars().nth(self.x + self.len()).unwrap(),
-                    x: self.x + self.len(),
-                    y: self.y - 1,
-                };
+                let matrix_element = MatrixElement::new(&line_above, self.x+self.len(), self.y-1);
                 surrounding_matrix_elements.push(matrix_element);
             }
         }
@@ -144,19 +142,11 @@ impl Number {
         // Check same line
         let same_line = lines.get(self.y).unwrap();
         if !at_left_edge {
-            let matrix_element = MatrixElement {
-                value: same_line.chars().nth(self.x - 1).unwrap(),
-                x: self.x - 1,
-                y: self.y,
-            };
+            let matrix_element = MatrixElement::new(&same_line, self.x-1, self.y);
             surrounding_matrix_elements.push(matrix_element);
         }
         if !at_right_edge {
-            let matrix_element = MatrixElement {
-                value: same_line.chars().nth(self.x + self.len()).unwrap(),
-                x: self.x + self.len(),
-                y: self.y,
-            };
+            let matrix_element = MatrixElement::new(&same_line, self.x+self.len(), self.y);
             surrounding_matrix_elements.push(matrix_element);
         }
 
@@ -164,29 +154,17 @@ impl Number {
         if !at_bottom_edge {
             let line_below = lines.get(self.y + 1).unwrap();
             if !at_left_edge {
-                let matrix_element = MatrixElement {
-                    value: line_below.chars().nth(self.x - 1).unwrap(),
-                    x: self.x - 1,
-                    y: self.y + 1,
-                };
+                let matrix_element = MatrixElement::new(&line_below, self.x-1, self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // directly below
             for i in self.x..self.x + self.len() {
-                let matrix_element = MatrixElement {
-                    value: line_below.chars().nth(i).unwrap(),
-                    x: i,
-                    y: self.y + 1,
-                };
+                let matrix_element = MatrixElement::new(&line_below, i, self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
             // diagonally right
             if !at_right_edge {
-                let matrix_element = MatrixElement {
-                    value: line_below.chars().nth(self.x + self.len()).unwrap(),
-                    x: self.x + self.len(),
-                    y: self.y + 1,
-                };
+                let matrix_element = MatrixElement::new(&line_below, self.x+self.len(), self.y+1);
                 surrounding_matrix_elements.push(matrix_element);
             }
         }
