@@ -18,11 +18,11 @@ struct MatrixElement {
 }
 
 pub fn part2() {
-    let input = io::read_file(&Path::new("src/day3/input"));
-    let mut input_lines = Vec::<String>::new();
-    for line in input.lines() {
-        input_lines.push(line.to_string());
-    }
+    let binding = io::read_file(&Path::new("src/day3/input"));
+    let mut input_lines: Vec<String> = binding
+        .lines()
+        .map(|str| String::from(str))
+        .collect();
 
     println!("Identifying gears and calculating gear ratios...");
     let mut gear_candidate_to_numbers_map = HashMap::<MatrixElement, Vec<usize>>::new();
