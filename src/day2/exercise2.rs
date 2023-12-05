@@ -27,6 +27,7 @@ fn parse(input: String) -> Vec<Game> {
     games
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct Game {
     id: usize,
